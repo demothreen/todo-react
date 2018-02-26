@@ -7,24 +7,26 @@ class ToDos extends Component {
         return (
             <div>
                 <br/>
-                <ul>
-                    {data ?
+                <ul style={{padding: '0 30%'}}>
+                    {data ? data.map(option =>
                     <li style={{
                         cursor: 'pointer',
                         position: 'relative',
                         display: 'block',
                         padding: '12px 8px 12px 40px',
-                        background: '#d3d3cf',
+                        background: '#ccffd0',
                         fontSize: '18px',
                         transition: '0.2s',
                         listStyleType: 'none',
                         borderRadius: '7px',
-                        //border: '1px solid #232322'
+                        marginBottom: '2px',
                     }}
-                        onClick={() => this.props.onHandleTodoClick(data.id)}>
-                        {data.todo}
+                        onClick={() => this.props.onHandleTodoClick(option.id)}>
+                        {option.todo}
                     </li>
-                        : ' '}
+
+                    ) : ' '}
+                    <br/>
                 </ul>
             </div>
         );

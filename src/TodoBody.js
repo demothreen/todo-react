@@ -6,7 +6,8 @@ class TodoBody extends Component {
         super(props);
         this.state = {
             value: '',
-            list: {},
+            list: '',
+            todos: [],
         };
     }
 
@@ -15,24 +16,23 @@ class TodoBody extends Component {
     }
 
     userTodo() {
-
-        let todo = {};
-
-        todo.todo = this.state.value.replace(/\s+/g, '');
-        todo.id = this.generateId();
-        todo.check = false;
-
-
-        this.setState({
-            list: todo,
+        this.state.todos.push({
+            todo: this.state.value.replace(/\s+/g, ''),
+            id: this.generateId(),
+            check: false,
         })
 
-        this.syncData(todo);
+        this.setState({
+            list: this.state.todos,
+        })
+
+        this.syncData(this.state.todos);
     }
 
     syncData(todo) {
         localStorage.setItem('todo', JSON.stringify(todo));
     }
+
     generateId() {
         let id = '_' + Math.floor(Math.random() * 10000);
         return id;
@@ -55,11 +55,10 @@ class TodoBody extends Component {
     }
 
     render() {
-        console.log('todolist', this.state.todolist)
         console.log('list', this.state.list)
         return (
             <div>
-                <div className="well row">
+                <div className="well row" style={{margin: '0'}}>
                     <input type="text" size="40" placeholder="Введите текст"
                            style={{
                                borderRadius: "5px",
@@ -77,7 +76,9 @@ class TodoBody extends Component {
                     </button>
                 </div>
                 <div>
-                    <button type="button" className="btn butt btn-danger"
+                    <button type="button"
+                            className="btn butt btn-danger"
+                            style={{margin: '7px'}}
                             onClick={this.removeDone()}
                     >Удалить выполненные
                     </button>
