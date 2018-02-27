@@ -1,18 +1,24 @@
 import React, {Component} from 'react';
 import ToDos from './ToDos';
 
+//todo: реализовать удаление всех сделанных, а не по одному;
+//todo: после перезагрузки массив заново перезаполняется, поправить
+//todo: если Done при добавлении нового становится unDone
+
 class TodoBody extends Component {
     constructor(props) {
         super(props);
         this.state = {
             value: '',
             list: '',
-            todos: [],
+            todos: []
         };
     }
 
     componentWillMount() {
-        this.state.list = JSON.parse(localStorage.getItem('todo'));
+        this.setState({
+            list: JSON.parse(localStorage.getItem('todo'))
+        })
     }
 
     userTodo() {
@@ -21,15 +27,13 @@ class TodoBody extends Component {
             id: this.generateId(),
             check: false,
         })
-
-        this.setState({
-            list: this.state.todos,
-        })
-
         this.syncData(this.state.todos);
     }
 
     syncData(todo) {
+        this.setState({
+            list: todo,
+        });
         localStorage.setItem('todo', JSON.stringify(todo));
     }
 
@@ -38,24 +42,41 @@ class TodoBody extends Component {
         return id;
     }
 
-    handleTodoClick(todoId) {
-        console.log('todoId', todoId)
+    onHandleTodoClick(todoId) {
+        let resultSave = JSON.parse(localStorage.getItem('todo'));
+
+        for (let i in resultSave) {
+            if (resultSave[i].id === todoId.id) {
+                resultSave[i].check = !resultSave[i].check;
+            }
+        }
+        this.syncData(resultSave);
     }
 
     removeDone() {
+        let list = this.state.list;
 
+        for (let i in list) {
+            if(list[i].check === true){
+                let index = list.indexOf(list[i]);
+                list.splice(index, 1);
+            }
+        }
+        this.setState({
+            todos: list
+        })
+        this.syncData(list);
     }
 
     removeAll() {
         this.setState({
             list: '',
-            value: ''
-        })
+            value: '',
+            todos: [],
+        });
         delete localStorage['todo'];
     }
-
     render() {
-        console.log('list', this.state.list)
         return (
             <div>
                 <div className="well row" style={{margin: '0'}}>
@@ -69,7 +90,9 @@ class TodoBody extends Component {
                            value={this.state.value}
                            onChange={(event) => this.setState({value: event.target.value})}
                     />
-                    <button type="button" className="btn button btn-success"
+                    <button type="button"
+                            className="btn button btn-success"
+                            style={{margin: '5px'}}
                             onClick={() => this.userTodo()}
                             disabled={!this.state.value.trim()}
                     >Добавить
@@ -78,8 +101,8 @@ class TodoBody extends Component {
                 <div>
                     <button type="button"
                             className="btn butt btn-danger"
-                            style={{margin: '7px'}}
-                            onClick={this.removeDone()}
+                            style={{margin: '5px'}}
+                            onClick={() => this.removeDone()}
                     >Удалить выполненные
                     </button>
                     <button
@@ -89,7 +112,7 @@ class TodoBody extends Component {
                     >Удалить всё
                     </button>
                 </div>
-                <ToDos data={this.state.list} onHandleTodoClick={this.handleTodoClick}/>
+                <ToDos data={this.state.list} handleTodoClick={this.onHandleTodoClick.bind(this)}/>
             </div>
         );
     }
