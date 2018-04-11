@@ -1,5 +1,7 @@
 import React, {Component} from 'react';
 
+//todo: сделать возможность удалять любые тудушки
+
 class ToDos extends Component {
     render() {
         let data = this.props.data;
@@ -12,16 +14,16 @@ class ToDos extends Component {
                             style={
                                 option.check === true ? STYLES.checkTrue : STYLES.checkFalse
                             }
+
                             onClick={() => this.props.handleTodoClick(option)}>
                             {option.todo}
                         </li>
-                    ) : ' '}
+                    ) : []}
                     <br/>
                 </ul>
             </div>
         );
     }
-
 }
 
 export default ToDos;

@@ -1,17 +1,12 @@
 import React, {Component} from 'react';
 import ToDos from './ToDos';
 
-//todo: реализовать удаление всех сделанных, а не по одному;
-//todo: после перезагрузки массив заново перезаполняется, поправить
-//todo: если Done при добавлении нового становится unDone
-
 class TodoBody extends Component {
     constructor(props) {
         super(props);
         this.state = {
             value: '',
-            list: '',
-            todos: []
+            list: [],
         };
     }
 
@@ -21,15 +16,26 @@ class TodoBody extends Component {
         })
     }
 
+    /**
+     * Создание тудушек
+     */
     userTodo() {
-        this.state.todos.push({
+        this.state.list = this.state.list || []
+        this.state.list.push({
             todo: this.state.value.replace(/\s+/g, ''),
             id: this.generateId(),
             check: false,
+            delTodo: false,
         })
-        this.syncData(this.state.todos);
+        this.setState({
+            value: ''
+        })
+        this.syncData(this.state.list);
     }
 
+    /**
+     * синхронизация с локалсторадж
+     */
     syncData(todo) {
         this.setState({
             list: todo,
@@ -53,29 +59,43 @@ class TodoBody extends Component {
         this.syncData(resultSave);
     }
 
+    /**
+     * Удаление выполненных
+     */
     removeDone() {
         let list = this.state.list;
 
         for (let i in list) {
-            if(list[i].check === true){
-                let index = list.indexOf(list[i]);
-                list.splice(index, 1);
+            if (list[i].check === true) {
+                delete list[i];
             }
         }
+        let arr = list.filter((x) => {
+            return x !== null
+        });
+
         this.setState({
-            todos: list
+            list: arr
         })
-        this.syncData(list);
+        this.syncData(arr);
     }
 
+    /**
+     * Удаление всех
+     */
     removeAll() {
         this.setState({
             list: '',
             value: '',
-            todos: [],
         });
         delete localStorage['todo'];
     }
+    _handleKeyPress= (e) => {
+        if (e.key === 'Enter') {
+            this.userTodo()
+        }
+    }
+
     render() {
         return (
             <div>
@@ -88,6 +108,7 @@ class TodoBody extends Component {
                                paddingLeft: '5px'
                            }}
                            value={this.state.value}
+                           onKeyPress={this._handleKeyPress}
                            onChange={(event) => this.setState({value: event.target.value})}
                     />
                     <button type="button"
