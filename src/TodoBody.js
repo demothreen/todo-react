@@ -6,78 +6,64 @@ class TodoBody extends Component {
         super(props);
         this.state = {
             value: '',
-            list: [],
+            list: JSON.parse(localStorage.getItem('todo')) || []
         };
-    }
-
-    componentWillMount() {
-        this.setState({
-            list: JSON.parse(localStorage.getItem('todo'))
-        })
     }
 
     /**
      * Создание тудушек
      */
     userTodo() {
-        this.state.list = this.state.list || []
-        this.state.list.push({
-            todo: this.state.value.replace(/\s+/g, ''),
+        const todoItem = {
+            todo: this.state.value.trim(),
             id: this.generateId(),
             check: false,
             delTodo: false,
-        })
+        };
+
         this.setState({
-            value: ''
-        })
-        this.syncData(this.state.list);
+            value: '',
+            list: [todoItem].concat(this.state.list)
+        }, () => {
+            this.syncData();
+        });
     }
 
     /**
      * синхронизация с локалсторадж
      */
-    syncData(todo) {
-        this.setState({
-            list: todo,
-        });
-        localStorage.setItem('todo', JSON.stringify(todo));
+    syncData() {
+        localStorage.setItem('todo', JSON.stringify(this.state.list));
     }
 
     generateId() {
-        let id = '_' + Math.floor(Math.random() * 10000);
-        return id;
+        return '_' + Math.floor(Math.random() * 10000);
     }
 
-    onHandleTodoClick(todoId) {
-        let resultSave = JSON.parse(localStorage.getItem('todo'));
-
-        for (let i in resultSave) {
-            if (resultSave[i].id === todoId.id) {
-                resultSave[i].check = !resultSave[i].check;
+    onHandleTodoClick(todoClicked) {
+        const list = this.state.list.map((todoItem) => {
+            if (todoItem.id === todoClicked.id) {
+                todoItem.check = !todoItem.check
             }
-        }
-        this.syncData(resultSave);
+            return todoItem;
+        })
+
+        this.setState({list}, () => {
+            this.syncData();
+        });
     }
 
     /**
      * Удаление выполненных
      */
     removeDone() {
-        let list = this.state.list;
-
-        for (let i in list) {
-            if (list[i].check === true) {
-                delete list[i];
-            }
-        }
-        let arr = list.filter((x) => {
-            return x !== null
+        const unCheckedTodos = this.state.list.filter((todoItem) => {
+            return !todoItem.check
         });
 
-        this.setState({
-            list: arr
-        })
-        this.syncData(arr);
+        this.setState({list: unCheckedTodos}, () => {
+            this.syncData();
+        });
     }
 
     /**
