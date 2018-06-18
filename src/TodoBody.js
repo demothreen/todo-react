@@ -70,12 +70,11 @@ class TodoBody extends Component {
      * Удаление всех
      */
     removeAll() {
-        this.setState({
-            list: '',
-            value: '',
+        this.setState({list: []}, () => {
+            this.syncData();
         });
-        delete localStorage['todo'];
     }
+
     _handleKeyPress= (e) => {
         if (e.key === 'Enter') {
             this.userTodo()
