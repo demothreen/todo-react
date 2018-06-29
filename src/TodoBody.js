@@ -75,6 +75,17 @@ class TodoBody extends Component {
         });
     }
 
+    /**
+     * Удаление одного todo
+     */
+    removeOne = (e, id) => {
+        e.stopPropagation();
+        const newTodos = this.state.list.filter(todoItem => todoItem.id !== id);
+        this.setState({list: newTodos}, () => {
+            this.syncData();
+        });
+    }
+
     _handleKeyPress= (e) => {
         if (e.key === 'Enter') {
             this.userTodo()
@@ -118,7 +129,10 @@ class TodoBody extends Component {
                     >Удалить всё
                     </button>
                 </div>
-                <ToDos data={this.state.list} handleTodoClick={this.onHandleTodoClick.bind(this)}/>
+                <ToDos
+                    data = {this.state.list}
+                    handleTodoClick = {this.onHandleTodoClick.bind(this)} 
+                    removeOne = {this.removeOne} />
             </div>
         );
     }
