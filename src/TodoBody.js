@@ -1,19 +1,28 @@
 import React, {Component} from 'react';
 import ToDos from './ToDos';
+import Input from './Input';
+import Button from './Button';
 
 class TodoBody extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            value: '',
-            list: JSON.parse(localStorage.getItem('todo')) || []
-        };
+
+    state = {
+        value: '',
+        list: JSON.parse(localStorage.getItem('todo')) || []
+    };
+
+    setStateAndSync = (newState = {}) => {
+        this.setState(newState, () => this.syncData());
     }
 
-    /**
-     * Создание тудушек
-     */
-    userTodo() {
+    syncData = () => {
+        localStorage.setItem('todo', JSON.stringify(this.state.list));
+    }
+
+    generateId = () => {
+        return '_' + Math.floor(Math.random() * 10000);
+    }
+
+    addTodo = () => {
         const todoItem = {
             todo: this.state.value.trim(),
             id: this.generateId(),
@@ -21,26 +30,26 @@ class TodoBody extends Component {
             delTodo: false,
         };
 
-        this.setState({
+        this.setStateAndSync({
             value: '',
             list: [todoItem].concat(this.state.list)
-        }, () => {
-            this.syncData();
-        });
+        })
     }
 
-    /**
-     * синхронизация с локалсторадж
-     */
-    syncData() {
-        localStorage.setItem('todo', JSON.stringify(this.state.list));
+    removeOne = (event, id) => {
+        event.stopPropagation();
+        const newTodos = this.state.list.filter(todoItem => todoItem.id !== id);
+        this.setStateAndSync({list: newTodos});
     }
 
-    generateId() {
-        return '_' + Math.floor(Math.random() * 10000);
+    removeDone = () => {
+        const unCheckedTodos = this.state.list.filter(todoItem => !todoItem.check);
+        this.setStateAndSync({list: unCheckedTodos});
     }
 
-    onHandleTodoClick(todoClicked) {
+    removeAll = () => this.setStateAndSync({list: []});
+
+    handleTodoClick = (todoClicked) => {
         const list = this.state.list.map((todoItem) => {
             if (todoItem.id === todoClicked.id) {
                 todoItem.check = !todoItem.check
@@ -48,91 +57,50 @@ class TodoBody extends Component {
             return todoItem;
         })
 
-        this.setState({list}, () => {
-            this.syncData();
-        });
+        this.setStateAndSync({list});
     }
 
-    /**
-     * Удаление выполненных
-     */
-    removeDone() {
-        const unCheckedTodos = this.state.list.filter((todoItem) => {
-            return !todoItem.check
-        });
-
-        this.setState({list: unCheckedTodos}, () => {
-            this.syncData();
-        });
-    }
-
-    /**
-     * Удаление всех
-     */
-    removeAll() {
-        this.setState({list: []}, () => {
-            this.syncData();
-        });
-    }
-
-    /**
-     * Удаление одного todo
-     */
-    removeOne = (e, id) => {
-        e.stopPropagation();
-        const newTodos = this.state.list.filter(todoItem => todoItem.id !== id);
-        this.setState({list: newTodos}, () => {
-            this.syncData();
-        });
-    }
-
-    _handleKeyPress= (e) => {
-        if (e.key === 'Enter') {
-            this.userTodo()
+    handleKeyPress = (event) => {
+        if (event.key === 'Enter') {
+            this.addTodo()
         }
     }
+
+    handleInputChange = event => this.setState({value: event.target.value});
 
     render() {
         return (
             <div>
                 <div className="well row" style={{margin: '0'}}>
-                    <input type="text" size="40" placeholder="Введите текст"
-                           style={{
-                               borderRadius: "5px",
-                               height: '32px',
-                               borderWidth: 'thin',
-                               paddingLeft: '5px'
-                           }}
-                           value={this.state.value}
-                           onKeyPress={this._handleKeyPress}
-                           onChange={(event) => this.setState({value: event.target.value})}
+                    <Input
+                        value={this.state.value}
+                        handleKeyPress={this.handleKeyPress}
+                        handleChange={this.handleInputChange}
                     />
-                    <button type="button"
-                            className="btn button btn-success"
-                            style={{margin: '5px'}}
-                            onClick={() => this.userTodo()}
-                            disabled={!this.state.value.trim()}
-                    >Добавить
-                    </button>
+                    <Button
+                        disabled={!this.state.value.trim()}
+                        handleClick={this.addTodo}
+                        text={'Добавить'}
+                        type={'success'}
+                    />
                 </div>
                 <div>
-                    <button type="button"
-                            className="btn butt btn-danger"
-                            style={{margin: '5px'}}
-                            onClick={() => this.removeDone()}
-                    >Удалить выполненные
-                    </button>
-                    <button
-                        type="button"
-                        className="btn butt btn-danger"
-                        onClick={() => this.removeAll()}
-                    >Удалить всё
-                    </button>
+                    <Button
+                        handleClick={this.removeDone}
+                        text={'Удалить выполненные'}
+                        type={'danger'}
+                    />
+                    <Button
+                        handleClick={this.removeAll}
+                        text={'Удалить всё'}
+                        type={'danger'}
+                    />
                 </div>
                 <ToDos
-                    data = {this.state.list}
-                    handleTodoClick = {this.onHandleTodoClick.bind(this)} 
-                    removeOne = {this.removeOne} />
+                    data={this.state.list}
+                    handleTodoClick={this.handleTodoClick} 
+                    handleRemoveClick={this.removeOne}
+                />
             </div>
         );
     }
