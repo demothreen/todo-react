@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
-import ToDos from './ToDos';
-import Input from './Input';
-import Button from './Button';
+import ToDos from './../ToDos/ToDos';
+import Input from './../Input/Input';
+import Button from './../Button/Button';
 
 class TodoBody extends Component {
 
