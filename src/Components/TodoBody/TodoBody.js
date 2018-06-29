@@ -10,8 +10,10 @@ class TodoBody extends Component {
         list: JSON.parse(localStorage.getItem('todo')) || []
     };
 
-    setStateAndSync = (newState = {}) => {
-        this.setState(newState, () => this.syncData());
+    componentDidUpdate(prevProps, prevState) {
+        if (this.state.list !== prevState.list) {
+            this.syncData();
+        }
     }
 
     syncData = () => {
@@ -30,7 +32,7 @@ class TodoBody extends Component {
             delTodo: false,
         };
 
-        this.setStateAndSync({
+        this.setState({
             value: '',
             list: [todoItem].concat(this.state.list)
         })
@@ -39,15 +41,15 @@ class TodoBody extends Component {
     removeOne = (event, id) => {
         event.stopPropagation();
         const newTodos = this.state.list.filter(todoItem => todoItem.id !== id);
-        this.setStateAndSync({list: newTodos});
+        this.setState({list: newTodos});
     }
 
     removeDone = () => {
         const unCheckedTodos = this.state.list.filter(todoItem => !todoItem.check);
-        this.setStateAndSync({list: unCheckedTodos});
+        this.setState({list: unCheckedTodos});
     }
 
-    removeAll = () => this.setStateAndSync({list: []});
+    removeAll = () => this.setState({list: []});
 
     handleTodoClick = (todoClicked) => {
         const list = this.state.list.map((todoItem) => {
@@ -57,7 +59,7 @@ class TodoBody extends Component {
             return todoItem;
         })
 
-        this.setStateAndSync({list});
+        this.setState({list});
     }
 
     handleKeyPress = (event) => {
