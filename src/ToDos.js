@@ -1,7 +1,5 @@
 import React, {Component} from 'react';
 
-//todo: сделать возможность удалять любые тудушки
-
 class ToDos extends Component {
     render() {
         let data = this.props.data;
@@ -14,9 +12,11 @@ class ToDos extends Component {
                             style={
                                 option.check === true ? STYLES.checkTrue : STYLES.checkFalse
                             }
-
                             onClick={() => this.props.handleTodoClick(option)}>
                             {option.todo}
+                            <span className = "glyphicon glyphicon-remove"
+                                style = {STYLES.delete_button}
+                                onClick = {e => this.props.removeOne(e, option.id)} />
                         </li>
                     ) : []}
                     <br/>
@@ -53,5 +53,11 @@ const STYLES = {
         listStyleType: 'none',
         borderRadius: '7px',
         marginBottom: '2px',
+    },
+    delete_button: {
+        position: 'absolute',
+        margin: '15px auto 15px 20px',
+        right: '20px',
+        color: 'red'
     }
 };
