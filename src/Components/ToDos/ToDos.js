@@ -1,5 +1,5 @@
 import React from 'react';
-import ToDo from './ToDo';
+import ToDo from './../ToDo/ToDo';
 import PropTypes from 'prop-types';
 
 const ToDos = ({data, handleTodoClick, handleRemoveClick}) => {
